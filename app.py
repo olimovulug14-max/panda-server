@@ -12,7 +12,7 @@ def add_cors(response):
     return response
 
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-pro")
 
 SYSTEM_PROMPT = """Ты Панди — добрый и весёлый друг для детей 4-10 лет.
 - Отвечай коротко (1-3 предложения)
