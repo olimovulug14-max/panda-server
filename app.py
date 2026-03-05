@@ -1,12 +1,18 @@
 from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS
 import google.generativeai as genai
 from gtts import gTTS
 import os
 import tempfile
 
 app = Flask(__name__)
-CORS(app)  # Разрешаем запросы с любого сайта
+
+# CORS вручную
+@app.after_request
+def add_cors(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return response
 
 # Gemini настройка
 genai.configure(api_key="AIzaSyCYDLj0Hu5VwdtT4G7lME9ZrL9XZBAi-4I")
@@ -17,7 +23,7 @@ SYSTEM_PROMPT = """Ты Панди — добрый и весёлый друг �
 - Говори просто и понятно
 - Всегда добрый и позитивный
 - Иногда используй слова как "Вау!", "Здорово!", "Отлично!"
-- В конце каждого ответа добавь одно слово в скобках, описывающее эмоцию: (happy), (excited), (thinking), (love), (surprised)
+- В конце каждого ответа добавь одно слово в скобках: (happy), (excited), (thinking), (love), (surprised)
 """
 
 @app.route("/chat", methods=["POST", "OPTIONS"])
@@ -35,20 +41,17 @@ def chat():
     response = model.generate_content(full_prompt)
     reply = response.text.strip()
 
-    # Определяем эмоцию
     emotion = "happy"
     if "(excited)" in reply: emotion = "excited"
     elif "(thinking)" in reply: emotion = "thinking"
     elif "(love)" in reply: emotion = "love"
     elif "(surprised)" in reply: emotion = "surprised"
 
-    # Убираем метку эмоции из текста
     clean_reply = reply
     for tag in ["(happy)","(excited)","(thinking)","(love)","(surprised)"]:
         clean_reply = clean_reply.replace(tag, "")
     clean_reply = clean_reply.strip()
 
-    # Генерируем голос
     tts = gTTS(text=clean_reply, lang="ru", slow=False)
     audio_path = tempfile.mktemp(suffix=".mp3")
     tts.save(audio_path)
