@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-import google.generativeai as genai
+from google import genai
 import os
 
 app = Flask(__name__)
@@ -11,8 +11,7 @@ def add_cors(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return response
 
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-2.0-flash")
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 SYSTEM_PROMPT = """Ты Панди — добрый и весёлый друг для детей 4-10 лет.
 - Отвечай коротко (1-3 предложения)
@@ -31,7 +30,10 @@ def chat():
         return jsonify({"error": "Нет сообщения"}), 400
 
     full_prompt = SYSTEM_PROMPT + "\nРебёнок говорит: " + user_message
-    response = model.generate_content(full_prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=full_prompt
+    )
     reply = response.text.strip()
 
     emotion = "happy"
@@ -51,5 +53,5 @@ def home():
     return "Panda AI Server работает!"
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
