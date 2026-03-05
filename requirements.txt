@@ -1,5 +1,5 @@
 flask
-flask-cors
+Flask-Cors
 google-generativeai
 gTTS
 gunicorn
