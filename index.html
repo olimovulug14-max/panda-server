@@ -6,369 +6,118 @@
 <title>Панда AI</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; background: #f0f9ff; height: 100vh; overflow: hidden; }
 
-  body {
-    font-family: 'Nunito', sans-serif;
-    background: #f0f9ff;
-    height: 100vh;
-    overflow: hidden;
-    position: relative;
-  }
-
-  /* ===== SPLASH SCREEN ===== */
   #splash {
     position: fixed; inset: 0;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    z-index: 1000;
-    transition: opacity 0.8s ease;
+    z-index: 1000; transition: opacity 0.8s ease;
   }
   #splash.hide { opacity: 0; pointer-events: none; }
-
-  .logo-circle {
-    width: 120px; height: 120px;
-    background: white;
-    border-radius: 30px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 60px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    animation: logoPop 0.6s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  .logo-title {
-    color: white; font-size: 28px; font-weight: 900;
-    margin-top: 16px; letter-spacing: 2px;
-    animation: fadeUp 0.6s 0.3s both;
-  }
-  .logo-sub {
-    color: rgba(255,255,255,0.8); font-size: 14px;
-    margin-top: 6px;
-    animation: fadeUp 0.6s 0.5s both;
-  }
-  .loading-dots {
-    display: flex; gap: 8px; margin-top: 40px;
-    animation: fadeUp 0.6s 0.7s both;
-  }
-  .dot {
-    width: 10px; height: 10px;
-    background: white; border-radius: 50%;
-    animation: bounce 1.2s infinite;
-  }
+  .logo-circle { width: 120px; height: 120px; background: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 60px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: logoPop 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+  .logo-title { color: white; font-size: 28px; font-weight: 900; margin-top: 16px; letter-spacing: 2px; }
+  .logo-sub { color: rgba(255,255,255,0.8); font-size: 14px; margin-top: 6px; }
+  .loading-dots { display: flex; gap: 8px; margin-top: 40px; }
+  .dot { width: 10px; height: 10px; background: white; border-radius: 50%; animation: bounce 1.2s infinite; }
   .dot:nth-child(2) { animation-delay: 0.2s; }
   .dot:nth-child(3) { animation-delay: 0.4s; }
 
-  /* ===== WELCOME SCREEN ===== */
   #welcome {
     position: fixed; inset: 0;
     background: linear-gradient(180deg, #e0f7fa 0%, #f3e5f5 100%);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    z-index: 900; opacity: 0; pointer-events: none;
-    transition: opacity 0.6s ease;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 900; opacity: 0; pointer-events: none; transition: opacity 0.6s ease;
   }
   #welcome.show { opacity: 1; pointer-events: all; }
+  .welcome-title { font-size: 32px; font-weight: 900; color: #4a148c; margin-bottom: 8px; }
+  .welcome-sub { font-size: 16px; color: #7b1fa2; margin-bottom: 20px; }
+  .panda-big { width: 180px; height: 180px; margin-bottom: 16px; animation: pandaBounce 2s ease-in-out infinite; }
+  .speech-bubble { background: white; border-radius: 20px; padding: 12px 20px; font-size: 15px; font-weight: 700; color: #4a148c; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 30px; text-align: center; max-width: 260px; }
+  .btn-row { display: flex; gap: 16px; }
+  .btn-main { padding: 16px 28px; border: none; border-radius: 20px; font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+  .btn-text-mode { background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; }
 
-  .welcome-title {
-    font-size: 32px; font-weight: 900;
-    color: #4a148c; margin-bottom: 8px;
-    text-align: center;
-  }
-  .welcome-sub {
-    font-size: 16px; color: #7b1fa2;
-    margin-bottom: 30px; text-align: center;
-  }
-
-  .panda-container {
-    position: relative;
-    width: 200px; height: 200px;
-    margin-bottom: 20px;
-  }
-  .panda-svg {
-    width: 100%; height: 100%;
-    transition: transform 0.3s ease;
-  }
-  .panda-svg.wave {
-    animation: wave 1s ease-in-out;
-  }
-
-  .speech-bubble {
-    background: white;
-    border-radius: 20px;
-    padding: 12px 20px;
-    font-size: 15px; font-weight: 700;
-    color: #4a148c;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-    position: relative;
-    text-align: center;
-    max-width: 260px;
-    opacity: 0;
-    animation: fadeUp 0.5s 0.5s both;
-  }
-  .speech-bubble::before {
-    content: '';
-    position: absolute;
-    top: -10px; left: 50%;
-    transform: translateX(-50%);
-    border: 10px solid transparent;
-    border-bottom-color: white;
-    border-top: 0;
-  }
-
-  .btn-row {
-    display: flex; gap: 16px;
-    opacity: 0;
-    animation: fadeUp 0.5s 1s both;
-  }
-  .btn-main {
-    padding: 16px 28px;
-    border: none; border-radius: 20px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 18px; font-weight: 900;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-  }
-  .btn-main:active { transform: scale(0.95); }
-  .btn-text-mode {
-    background: linear-gradient(135deg, #a855f7, #7c3aed);
-    color: white;
-  }
-  .btn-voice-mode {
-    background: linear-gradient(135deg, #f43f5e, #e11d48);
-    color: white;
-  }
-
-  /* ===== CHAT SCREEN ===== */
   #chat {
     position: fixed; inset: 0;
     background: linear-gradient(180deg, #e0f7fa 0%, #f3e5f5 100%);
     display: flex; flex-direction: column;
-    z-index: 800; opacity: 0; pointer-events: none;
-    transition: opacity 0.6s ease;
+    z-index: 800; opacity: 0; pointer-events: none; transition: opacity 0.6s ease;
   }
   #chat.show { opacity: 1; pointer-events: all; }
-
-  .chat-header {
-    padding: 16px 20px;
-    display: flex; align-items: center; gap: 12px;
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(10px);
-  }
+  .chat-header { padding: 16px 20px; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.7); }
   .chat-header-title { font-size: 20px; font-weight: 900; color: #4a148c; }
   .chat-header-sub { font-size: 12px; color: #9c27b0; }
-  .back-btn {
-    background: none; border: none;
-    font-size: 24px; cursor: pointer;
-    padding: 4px 8px;
-  }
+  .back-btn { background: none; border: none; font-size: 24px; cursor: pointer; }
 
-  .panda-area {
-    display: flex; flex-direction: column;
-    align-items: center;
-    padding: 10px 0 0;
-    position: relative;
-  }
+  .panda-area { display: flex; flex-direction: column; align-items: center; padding: 10px 0 0; position: relative; }
+  .panda-wrap { position: relative; width: 140px; height: 140px; }
+  .panda-svg { width: 100%; height: 100%; animation: pandaBounce 2s ease-in-out infinite; }
 
-  .panda-wrap {
-    position: relative;
-    width: 140px; height: 140px;
-  }
+  .particles { position: absolute; inset: -40px; pointer-events: none; z-index: 10; }
+  .particle { position: absolute; font-size: 20px; animation: particleFly 1.5s ease-out forwards; opacity: 0; }
 
-  /* Particle container */
-  .particles {
-    position: absolute; inset: -40px;
-    pointer-events: none;
-    z-index: 10;
-  }
-  .particle {
-    position: absolute;
-    font-size: 20px;
-    animation: particleFly 1.5s ease-out forwards;
-    opacity: 0;
-  }
+  .ring { position: absolute; inset: -20px; border-radius: 50%; border: 3px solid transparent; opacity: 0; }
+  .ring1 { border-color: #a855f7; }
+  .ring2 { border-color: #f43f5e; inset: -35px; }
+  .ring3 { border-color: #f59e0b; inset: -50px; }
+  .ring.active { animation: ringPulse 1s ease-out forwards; }
 
-  /* Ring animation */
-  .ring {
-    position: absolute; inset: -20px;
-    border-radius: 50%;
-    border: 3px solid transparent;
-    animation: ringPulse 1s ease-out forwards;
-    opacity: 0;
-  }
-  .ring1 { border-color: #a855f7; animation-delay: 0s; }
-  .ring2 { border-color: #f43f5e; animation-delay: 0.15s; inset: -35px; }
-  .ring3 { border-color: #f59e0b; animation-delay: 0.3s; inset: -50px; }
+  .emotion-label { font-size: 13px; color: #7b1fa2; font-weight: 700; margin-top: 4px; height: 20px; }
+  .response-bubble { background: white; border-radius: 20px; padding: 12px 18px; margin: 8px 16px; font-size: 15px; font-weight: 600; color: #2d1b69; box-shadow: 0 4px 16px rgba(0,0,0,0.08); min-height: 50px; line-height: 1.5; }
 
-  .panda-emotion-label {
-    font-size: 13px; color: #7b1fa2; font-weight: 700;
-    margin-top: 4px; height: 20px;
-  }
-
-  .response-bubble {
-    background: white;
-    border-radius: 20px;
-    padding: 12px 18px;
-    margin: 8px 16px;
-    font-size: 15px; font-weight: 600;
-    color: #2d1b69;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    min-height: 50px;
-    line-height: 1.5;
-    flex-shrink: 0;
-  }
-
-  .quick-questions {
-    padding: 6px 16px;
-    display: flex; gap: 8px;
-    overflow-x: auto; flex-shrink: 0;
-  }
+  .quick-questions { padding: 6px 16px; display: flex; gap: 8px; overflow-x: auto; }
   .quick-questions::-webkit-scrollbar { display: none; }
-  .quick-btn {
-    background: white;
-    border: 2px solid #a855f7;
-    border-radius: 20px;
-    padding: 8px 14px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 13px; font-weight: 700;
-    color: #7c3aed;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-  .quick-btn:active { background: #a855f7; color: white; transform: scale(0.95); }
+  .quick-btn { background: white; border: 2px solid #a855f7; border-radius: 20px; padding: 8px 14px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; color: #7c3aed; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+  .quick-btn:active { background: #a855f7; color: white; }
 
-  .input-area {
-    padding: 12px 16px;
-    display: flex; gap: 10px;
-    background: rgba(255,255,255,0.8);
-    backdrop-filter: blur(10px);
-    margin-top: auto;
-  }
-  .msg-input {
-    flex: 1;
-    padding: 12px 16px;
-    border: 2px solid #e9d5ff;
-    border-radius: 20px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 15px;
-    outline: none;
-    background: white;
-  }
+  .input-area { padding: 12px 16px; display: flex; gap: 10px; background: rgba(255,255,255,0.8); margin-top: auto; }
+  .msg-input { flex: 1; padding: 12px 16px; border: 2px solid #e9d5ff; border-radius: 20px; font-family: 'Nunito', sans-serif; font-size: 15px; outline: none; }
   .msg-input:focus { border-color: #a855f7; }
-  .send-btn {
-    width: 50px; height: 50px;
-    background: linear-gradient(135deg, #a855f7, #7c3aed);
-    border: none; border-radius: 50%;
-    font-size: 22px; cursor: pointer;
-    transition: transform 0.2s;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .send-btn:active { transform: scale(0.9); }
+  .send-btn { width: 50px; height: 50px; background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; border-radius: 50%; font-size: 22px; cursor: pointer; color: white; }
 
-  .loading-panda {
-    display: inline-block;
-    animation: spin 1s linear infinite;
-  }
-
-  /* ===== ANIMATIONS ===== */
-  @keyframes logoPop {
-    from { transform: scale(0); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-  @keyframes fadeUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
-  @keyframes wave {
-    0% { transform: rotate(0deg); }
-    20% { transform: rotate(-15deg); }
-    40% { transform: rotate(15deg); }
-    60% { transform: rotate(-10deg); }
-    80% { transform: rotate(10deg); }
-    100% { transform: rotate(0deg); }
-  }
-  @keyframes particleFly {
-    0% { transform: translate(0,0) scale(0); opacity: 1; }
-    100% { transform: translate(var(--tx), var(--ty)) scale(1.2); opacity: 0; }
-  }
-  @keyframes ringPulse {
-    0% { transform: scale(0.5); opacity: 1; }
-    100% { transform: scale(1.5); opacity: 0; }
-  }
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  @keyframes pandaBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-  .panda-idle { animation: pandaBounce 2s ease-in-out infinite; }
+  @keyframes logoPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes pandaBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @keyframes particleFly { 0% { transform: translate(0,0) scale(0); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(1.2); opacity: 0; } }
+  @keyframes ringPulse { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
 </style>
 </head>
 <body>
 
-<!-- SPLASH -->
 <div id="splash">
   <div class="logo-circle">🐼</div>
   <div class="logo-title">OOLIMOV</div>
   <div class="logo-sub">INDUSTRIES</div>
   <div class="loading-dots">
-    <div class="dot"></div>
-    <div class="dot"></div>
-    <div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
   </div>
 </div>
 
-<!-- WELCOME -->
 <div id="welcome">
   <div class="welcome-title">Привет! Я Панди! 🐼</div>
   <div class="welcome-sub">Твой умный друг-панда</div>
-  <div class="panda-container">
-    <svg class="panda-svg panda-idle" id="welcomePanda" viewBox="0 0 200 200">
-      <!-- ears -->
-      <circle cx="55" cy="55" r="28" fill="#1a1a1a"/>
-      <circle cx="145" cy="55" r="28" fill="#1a1a1a"/>
-      <circle cx="55" cy="55" r="16" fill="#333"/>
-      <circle cx="145" cy="55" r="16" fill="#333"/>
-      <!-- head -->
-      <circle cx="100" cy="105" r="70" fill="white"/>
-      <!-- patches -->
-      <ellipse cx="72" cy="92" rx="22" ry="20" fill="#1a1a1a" transform="rotate(-10,72,92)"/>
-      <ellipse cx="128" cy="92" rx="22" ry="20" fill="#1a1a1a" transform="rotate(10,128,92)"/>
-      <!-- happy eyes -->
-      <path d="M62 90 Q72 82 82 90" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
-      <path d="M118 90 Q128 82 138 90" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
-      <!-- nose -->
-      <ellipse cx="100" cy="112" rx="10" ry="7" fill="#1a1a1a"/>
-      <!-- smile -->
-      <path d="M82 125 Q100 142 118 125" stroke="#1a1a1a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-      <!-- cheeks -->
-      <circle cx="68" cy="120" r="12" fill="#ffb3c6" opacity="0.6"/>
-      <circle cx="132" cy="120" r="12" fill="#ffb3c6" opacity="0.6"/>
-      <!-- waving arm -->
-      <ellipse cx="158" cy="148" rx="16" ry="30" fill="white" transform="rotate(40,158,148)" id="waveArm"/>
-      <ellipse cx="165" cy="130" rx="12" ry="14" fill="white"/>
-      <!-- fingers wave hint -->
-      <text x="160" y="118" font-size="20" id="waveHand">👋</text>
-    </svg>
-  </div>
-  <div class="speech-bubble" id="speechBubble">Нажми кнопку и поговори со мной! 😊</div>
+  <svg class="panda-big" viewBox="0 0 200 200">
+    <circle cx="55" cy="55" r="28" fill="#1a1a1a"/><circle cx="145" cy="55" r="28" fill="#1a1a1a"/>
+    <circle cx="55" cy="55" r="16" fill="#333"/><circle cx="145" cy="55" r="16" fill="#333"/>
+    <circle cx="100" cy="105" r="70" fill="white"/>
+    <ellipse cx="72" cy="92" rx="22" ry="20" fill="#1a1a1a" transform="rotate(-10,72,92)"/>
+    <ellipse cx="128" cy="92" rx="22" ry="20" fill="#1a1a1a" transform="rotate(10,128,92)"/>
+    <path d="M62 90 Q72 82 82 90" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M118 90 Q128 82 138 90" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="100" cy="112" rx="10" ry="7" fill="#1a1a1a"/>
+    <path d="M82 125 Q100 142 118 125" stroke="#1a1a1a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <circle cx="68" cy="120" r="12" fill="#ffb3c6" opacity="0.6"/><circle cx="132" cy="120" r="12" fill="#ffb3c6" opacity="0.6"/>
+    <text x="148" y="85" font-size="28">👋</text>
+  </svg>
+  <div class="speech-bubble">Нажми кнопку и поговори со мной! 😊</div>
   <div class="btn-row">
-    <button class="btn-main btn-text-mode" onclick="openChat()">💬 Текст</button>
-    <button class="btn-main btn-voice-mode" onclick="alert('Голосовой режим скоро!')">🎤 Голос</button>
+    <button class="btn-main btn-text-mode" onclick="openChat()">💬 Поговорить с Панди</button>
   </div>
 </div>
 
-<!-- CHAT -->
 <div id="chat">
   <div class="chat-header">
     <button class="back-btn" onclick="goBack()">←</button>
@@ -381,83 +130,63 @@
   <div class="panda-area">
     <div class="panda-wrap">
       <div class="particles" id="particles"></div>
-      <div id="ring1" class="ring ring1" style="display:none"></div>
-      <div id="ring2" class="ring ring2" style="display:none"></div>
-      <div id="ring3" class="ring ring3" style="display:none"></div>
-      <svg class="panda-svg panda-idle" id="chatPanda" viewBox="0 0 200 200">
-        <!-- ears -->
-        <circle cx="55" cy="55" r="28" fill="#1a1a1a"/>
-        <circle cx="145" cy="55" r="28" fill="#1a1a1a"/>
-        <circle cx="55" cy="55" r="16" fill="#333"/>
-        <circle cx="145" cy="55" r="16" fill="#333"/>
-        <!-- head -->
+      <div id="ring1" class="ring ring1"></div>
+      <div id="ring2" class="ring ring2"></div>
+      <div id="ring3" class="ring ring3"></div>
+      <svg class="panda-svg" viewBox="0 0 200 200">
+        <circle cx="55" cy="55" r="28" fill="#1a1a1a"/><circle cx="145" cy="55" r="28" fill="#1a1a1a"/>
+        <circle cx="55" cy="55" r="16" fill="#333"/><circle cx="145" cy="55" r="16" fill="#333"/>
         <circle cx="100" cy="105" r="70" fill="white"/>
-        <!-- patches -->
         <ellipse cx="72" cy="92" rx="22" ry="20" fill="#1a1a1a" transform="rotate(-10,72,92)"/>
         <ellipse cx="128" cy="92" rx="22" ry="20" fill="#1a1a1a" transform="rotate(10,128,92)"/>
-        <!-- face parts (swapped by emotion) -->
         <g id="face-happy">
           <path d="M62 90 Q72 82 82 90" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
           <path d="M118 90 Q128 82 138 90" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
           <ellipse cx="100" cy="112" rx="10" ry="7" fill="#1a1a1a"/>
           <path d="M82 125 Q100 142 118 125" stroke="#1a1a1a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-          <circle cx="68" cy="120" r="12" fill="#ffb3c6" opacity="0.6"/>
-          <circle cx="132" cy="120" r="12" fill="#ffb3c6" opacity="0.6"/>
+          <circle cx="68" cy="120" r="12" fill="#ffb3c6" opacity="0.6"/><circle cx="132" cy="120" r="12" fill="#ffb3c6" opacity="0.6"/>
         </g>
         <g id="face-excited" style="display:none">
-          <circle cx="72" cy="90" r="10" fill="white"/>
-          <circle cx="128" cy="90" r="10" fill="white"/>
-          <circle cx="74" cy="88" r="5" fill="#1a1a1a"/>
-          <circle cx="130" cy="88" r="5" fill="#1a1a1a"/>
+          <circle cx="72" cy="90" r="10" fill="white"/><circle cx="128" cy="90" r="10" fill="white"/>
+          <circle cx="74" cy="88" r="5" fill="#1a1a1a"/><circle cx="130" cy="88" r="5" fill="#1a1a1a"/>
           <ellipse cx="100" cy="112" rx="10" ry="7" fill="#1a1a1a"/>
           <path d="M78 122 Q100 148 122 122" stroke="#1a1a1a" stroke-width="3.5" fill="#ffb3c6" stroke-linecap="round"/>
-          <circle cx="65" cy="118" r="14" fill="#ff85a1" opacity="0.5"/>
-          <circle cx="135" cy="118" r="14" fill="#ff85a1" opacity="0.5"/>
+          <circle cx="65" cy="118" r="14" fill="#ff85a1" opacity="0.5"/><circle cx="135" cy="118" r="14" fill="#ff85a1" opacity="0.5"/>
         </g>
         <g id="face-love" style="display:none">
-          <text x="58" y="98" font-size="22">❤️</text>
-          <text x="112" y="98" font-size="22">❤️</text>
+          <text x="58" y="98" font-size="22">❤️</text><text x="112" y="98" font-size="22">❤️</text>
           <ellipse cx="100" cy="114" rx="10" ry="7" fill="#1a1a1a"/>
           <path d="M82 126 Q100 143 118 126" stroke="#1a1a1a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-          <circle cx="66" cy="120" r="14" fill="#ff69b4" opacity="0.55"/>
-          <circle cx="134" cy="120" r="14" fill="#ff69b4" opacity="0.55"/>
+          <circle cx="66" cy="120" r="14" fill="#ff69b4" opacity="0.55"/><circle cx="134" cy="120" r="14" fill="#ff69b4" opacity="0.55"/>
         </g>
         <g id="face-thinking" style="display:none">
-          <circle cx="72" cy="90" r="9" fill="white"/>
-          <circle cx="128" cy="90" r="9" fill="white"/>
-          <circle cx="70" cy="86" r="5" fill="#1a1a1a"/>
-          <circle cx="126" cy="86" r="5" fill="#1a1a1a"/>
+          <circle cx="72" cy="90" r="9" fill="white"/><circle cx="128" cy="90" r="9" fill="white"/>
+          <circle cx="70" cy="86" r="5" fill="#1a1a1a"/><circle cx="126" cy="86" r="5" fill="#1a1a1a"/>
           <ellipse cx="100" cy="113" rx="10" ry="7" fill="#1a1a1a"/>
           <path d="M86 128 Q100 130 114 125" stroke="#1a1a1a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-          <circle cx="148" cy="55" r="5" fill="#ddd" opacity="0.9"/>
-          <circle cx="158" cy="43" r="8" fill="#ddd" opacity="0.9"/>
-          <circle cx="170" cy="29" r="11" fill="#ddd" opacity="0.9"/>
-          <text x="164" y="34" font-size="11">?</text>
+          <circle cx="150" cy="55" r="5" fill="#ddd"/><circle cx="160" cy="43" r="8" fill="#ddd"/><circle cx="172" cy="29" r="11" fill="#ddd"/>
+          <text x="166" y="34" font-size="11">?</text>
         </g>
         <g id="face-surprised" style="display:none">
-          <circle cx="72" cy="90" r="13" fill="white"/>
-          <circle cx="128" cy="90" r="13" fill="white"/>
-          <circle cx="72" cy="90" r="7" fill="#1a1a1a"/>
-          <circle cx="128" cy="90" r="7" fill="#1a1a1a"/>
-          <circle cx="75" cy="87" r="3" fill="white"/>
-          <circle cx="131" cy="87" r="3" fill="white"/>
+          <circle cx="72" cy="90" r="13" fill="white"/><circle cx="128" cy="90" r="13" fill="white"/>
+          <circle cx="72" cy="90" r="7" fill="#1a1a1a"/><circle cx="128" cy="90" r="7" fill="#1a1a1a"/>
+          <circle cx="75" cy="87" r="3" fill="white"/><circle cx="131" cy="87" r="3" fill="white"/>
           <ellipse cx="100" cy="114" rx="10" ry="7" fill="#1a1a1a"/>
           <ellipse cx="100" cy="132" rx="11" ry="13" fill="#1a1a1a"/>
           <ellipse cx="100" cy="132" rx="7" ry="9" fill="#ff6b8a"/>
-          <circle cx="64" cy="118" r="13" fill="#ff9999" opacity="0.5"/>
-          <circle cx="136" cy="118" r="13" fill="#ff9999" opacity="0.5"/>
+          <circle cx="64" cy="118" r="13" fill="#ff9999" opacity="0.5"/><circle cx="136" cy="118" r="13" fill="#ff9999" opacity="0.5"/>
         </g>
       </svg>
     </div>
-    <div class="panda-emotion-label" id="emotionLabel">😊 Счастливая</div>
+    <div class="emotion-label" id="emotionLabel">😊 Счастливая</div>
   </div>
 
   <div class="response-bubble" id="responseBubble">Привет! О чём поговорим? 🐼</div>
 
   <div class="quick-questions">
-    <button class="quick-btn" onclick="sendQuick('Расскажи мне сказку!')">📖 Сказка</button>
-    <button class="quick-btn" onclick="sendQuick('Загадай мне загадку!')">🧩 Загадка</button>
-    <button class="quick-btn" onclick="sendQuick('Расскажи интересный факт!')">🌟 Факт</button>
+    <button class="quick-btn" onclick="sendQuick('Расскажи сказку!')">📖 Сказка</button>
+    <button class="quick-btn" onclick="sendQuick('Загадай загадку!')">🧩 Загадка</button>
+    <button class="quick-btn" onclick="sendQuick('Интересный факт!')">🌟 Факт</button>
     <button class="quick-btn" onclick="sendQuick('Давай поиграем!')">🎮 Игра</button>
     <button class="quick-btn" onclick="sendQuick('Расскажи анекдот!')">😂 Шутка</button>
   </div>
@@ -472,31 +201,26 @@
 const SERVER = "https://panda-server-er0a.onrender.com";
 
 const EMOTIONS = {
-  happy:     { label: "😊 Счастливая", faces: ["face-happy"] },
-  excited:   { label: "🤩 Восторг",    faces: ["face-excited"] },
-  love:      { label: "🥰 Влюблённая", faces: ["face-love"] },
-  thinking:  { label: "🤔 Думает",     faces: ["face-thinking"] },
-  surprised: { label: "😮 Удивлена",   faces: ["face-surprised"] },
+  happy:     { label: "😊 Счастливая" },
+  excited:   { label: "🤩 Восторг" },
+  love:      { label: "🥰 Влюблённая" },
+  thinking:  { label: "🤔 Думает" },
+  surprised: { label: "😮 Удивлена" },
 };
 
 const PARTICLES = {
-  happy:     ["✨","⭐","💫","🌟"],
-  excited:   ["🎉","🎊","⭐","💥","🌟"],
-  love:      ["❤️","💕","💖","🌸","💗"],
-  thinking:  ["💭","❓","🌀","💡"],
-  surprised: ["‼️","😲","💥","⚡"],
+  happy:     ["✨","⭐","💫"],
+  excited:   ["🎉","🎊","⭐","💥"],
+  love:      ["❤️","💕","💖","🌸"],
+  thinking:  ["💭","❓","💡"],
+  surprised: ["‼️","💥","⚡"],
 };
 
-// SPLASH → WELCOME
 window.onload = () => {
   setTimeout(() => {
     document.getElementById('splash').classList.add('hide');
     setTimeout(() => {
       document.getElementById('welcome').classList.add('show');
-      // wave animation
-      setTimeout(() => {
-        document.getElementById('welcomePanda').classList.add('wave');
-      }, 600);
     }, 800);
   }, 2500);
 };
@@ -512,15 +236,11 @@ function goBack() {
 }
 
 function setEmotion(emotion) {
-  const allFaces = ['face-happy','face-excited','face-love','face-thinking','face-surprised'];
-  allFaces.forEach(f => {
+  ['face-happy','face-excited','face-love','face-thinking','face-surprised'].forEach(f => {
     document.getElementById(f).style.display = 'none';
   });
-  const data = EMOTIONS[emotion] || EMOTIONS['happy'];
-  data.faces.forEach(f => {
-    document.getElementById(f).style.display = 'block';
-  });
-  document.getElementById('emotionLabel').textContent = data.label;
+  document.getElementById('face-' + emotion).style.display = 'block';
+  document.getElementById('emotionLabel').textContent = (EMOTIONS[emotion] || EMOTIONS['happy']).label;
   spawnParticles(emotion);
   spawnRings();
 }
@@ -535,10 +255,8 @@ function spawnParticles(emotion) {
     p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
     const angle = (i / 8) * 360;
     const dist = 60 + Math.random() * 40;
-    const tx = Math.cos(angle * Math.PI/180) * dist + 'px';
-    const ty = Math.sin(angle * Math.PI/180) * dist + 'px';
-    p.style.setProperty('--tx', tx);
-    p.style.setProperty('--ty', ty);
+    p.style.setProperty('--tx', Math.cos(angle * Math.PI/180) * dist + 'px');
+    p.style.setProperty('--ty', Math.sin(angle * Math.PI/180) * dist + 'px');
     p.style.left = '50%';
     p.style.top = '50%';
     p.style.animationDelay = (Math.random() * 0.3) + 's';
@@ -547,17 +265,13 @@ function spawnParticles(emotion) {
 }
 
 function spawnRings() {
-  ['ring1','ring2','ring3'].forEach(id => {
+  ['ring1','ring2','ring3'].forEach((id, i) => {
     const el = document.getElementById(id);
-    el.style.display = 'block';
-    el.style.animation = 'none';
-    void el.offsetWidth;
-    el.style.animation = '';
+    el.classList.remove('active');
+    setTimeout(() => el.classList.add('active'), i * 150);
   });
   setTimeout(() => {
-    ['ring1','ring2','ring3'].forEach(id => {
-      document.getElementById(id).style.display = 'none';
-    });
+    ['ring1','ring2','ring3'].forEach(id => document.getElementById(id).classList.remove('active'));
   }, 1500);
 }
 
@@ -576,8 +290,7 @@ async function sendQuick(text) {
 async function askPanda(text) {
   const btn = document.getElementById('sendBtn');
   const bubble = document.getElementById('responseBubble');
-
-  btn.innerHTML = '<span class="loading-panda">⏳</span>';
+  btn.textContent = '⏳';
   btn.disabled = true;
   setEmotion('thinking');
   bubble.textContent = 'Панди думает...';
@@ -591,18 +304,12 @@ async function askPanda(text) {
     const data = await res.json();
     bubble.textContent = data.text;
     setEmotion(data.emotion || 'happy');
-
-    // play audio
-    if (data.audio_url) {
-      const audio = new Audio(SERVER + data.audio_url.replace('/audio', '/audio'));
-      audio.play().catch(() => {});
-    }
   } catch(e) {
-    bubble.textContent = 'Ой, что-то пошло не так... Попробуй ещё раз! 🐼';
+    bubble.textContent = 'Ой, сервер спит... Подожди 30 секунд и попробуй ещё раз! 😴';
     setEmotion('surprised');
   }
 
-  btn.innerHTML = '➤';
+  btn.textContent = '➤';
   btn.disabled = false;
 }
 </script>
