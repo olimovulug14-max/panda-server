@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import google.generativeai as genai
+import os
 
 app = Flask(__name__)
 
@@ -10,7 +11,7 @@ def add_cors(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return response
 
-genai.configure(api_key="AIzaSyCYDLj0Hu5VwdtT4G7lME9ZrL9XZBAi-4I")
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 SYSTEM_PROMPT = """Ты Панди — добрый и весёлый друг для детей 4-10 лет.
@@ -24,10 +25,8 @@ SYSTEM_PROMPT = """Ты Панди — добрый и весёлый друг �
 def chat():
     if request.method == "OPTIONS":
         return "", 200
-
     data = request.json
     user_message = data.get("message", "")
-
     if not user_message:
         return jsonify({"error": "Нет сообщения"}), 400
 
@@ -44,9 +43,8 @@ def chat():
     clean_reply = reply
     for tag in ["(happy)","(excited)","(thinking)","(love)","(surprised)"]:
         clean_reply = clean_reply.replace(tag, "")
-    clean_reply = clean_reply.strip()
 
-    return jsonify({"text": clean_reply, "emotion": emotion})
+    return jsonify({"text": clean_reply.strip(), "emotion": emotion})
 
 @app.route("/", methods=["GET"])
 def home():
