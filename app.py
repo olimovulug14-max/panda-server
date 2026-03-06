@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
-from google import genai
 import os
+from groq import Groq  # pip install groq
 
 app = Flask(__name__)
 
-# CORS для фронтенда (разрешаем все источники)
+# CORS
 @app.after_request
 def add_cors(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
@@ -12,8 +12,7 @@ def add_cors(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return response
 
-# Инициализация клиента (ключ берётся из переменной окружения)
-client = genai.Client()  # автоматически берёт GEMINI_API_KEY из env
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 SYSTEM_PROMPT = """Ты Панди — добрый и весёлый друг для детей 4-10 лет.
 - Отвечай коротко (1-3 предложения)
@@ -33,36 +32,38 @@ def chat():
         return jsonify({"error": "Нет сообщения"}), 400
 
     try:
-        # Структурированный контент: system + user
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",  # или "gemini-2.0-flash", "gemini-3-flash-preview" — выбирай свежий
-            contents=[
-                {"role": "system", "parts": [{"text": SYSTEM_PROMPT}]},
-                {"role": "user",   "parts": [{"text": user_message}]}
-            ]
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",  # быстро + качество, или "gemma2-9b-it", "mixtral-8x7b-32768"
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_message}
+            ],
+            temperature=0.7,
+            max_tokens=150,
+            top_p=0.9
         )
 
-        reply = response.text.strip()
+        reply = response.choices[0].message.content.strip()
 
         # Извлекаем эмоцию
         emotion = "happy"
         if "(excited)" in reply: emotion = "excited"
         elif "(thinking)" in reply: emotion = "thinking"
-        elif "(love)" in reply:    emotion = "love"
+        elif "(love)" in reply: emotion = "love"
         elif "(surprised)" in reply: emotion = "surprised"
 
-        # Убираем тег эмоции из текста
+        # Убираем тег
         for tag in ["(happy)", "(excited)", "(thinking)", "(love)", "(surprised)"]:
             reply = reply.replace(tag, "").strip()
 
         return jsonify({"text": reply, "emotion": emotion})
 
     except Exception as e:
-        return jsonify({"error": f"Ошибка AI: {str(e)}"}), 500
+        return jsonify({"error": f"Ошибка: {str(e)}"}), 500
 
 @app.route("/", methods=["GET"])
 def home():
-    return "Panda AI Server работает! 🚀"
+    return "Panda AI Groq Server работает! 🐼"
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
